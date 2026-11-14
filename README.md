@@ -2,6 +2,16 @@
 
 Backend REST API berbasis **Go** dan **Fiber v2** untuk manajemen pendaftaran seminar, workshop, dan kompetisi kampus berkapasitas terbatas, beserta pengelolaan tiket event, notifikasi asinkron, dan feedback peserta.
 
+## Kelas
+
+| Kode Kelas | Nama Mata Kuliah | Semester
+| :--- | :--- | :--- |
+| TI-C4 | Pemrograman Backend Lanjut (Praktikum) | Semester 5 |
+
+## Dosen Pengampu
+
+Dosen Pengampu: Christiant Dimas Renggana, S.Kom
+
 ## Anggota Tim
 
 | Nama | NIM |
