@@ -8,6 +8,7 @@ import (
 
 	"github.com/Alan-00280/EventSeat-PBL-UAS.git/helper"
 	"github.com/Alan-00280/EventSeat-PBL-UAS.git/middleware"
+	"github.com/Alan-00280/EventSeat-PBL-UAS.git/routes"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/hibiken/asynq"
@@ -30,7 +31,7 @@ type ErrorResponse struct {
 	RequestID string        `json:"request_id"`
 }
 
-func NewFiberApp(env *Env, logger *slog.Logger) *fiber.App {
+func NewFiberApp(env *Env, logger *slog.Logger, deps routes.Dependencies) *fiber.App {
 	if logger == nil {
 		logger = slog.Default()
 	}
@@ -54,9 +55,11 @@ func NewFiberApp(env *Env, logger *slog.Logger) *fiber.App {
 		return c.SendString("Hello, World!")
 	})
 
-
 	// Middleware
 	middleware.Register(app, logger, env.AllowedOrigins)
+
+	// App Routes
+	routes.Register(app, deps)
 
 	// 404
 	app.Use(func(c *fiber.Ctx) error {
