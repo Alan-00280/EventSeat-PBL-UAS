@@ -7,8 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"eventseat/helper"
-
+	"github.com/Alan-00280/EventSeat-PBL-UAS.git/helper"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/helmet"
