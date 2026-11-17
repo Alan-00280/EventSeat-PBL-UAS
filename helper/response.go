@@ -8,8 +8,8 @@ import (
 )
 
 // Success mengirim respons JSON sukses dengan status code dan data yang diberikan.
-func Success(c *fiber.Ctx, status int, message string, data any) error {
-	return c.Status(status).JSON(model.WebResponse{
+func Success(c *fiber.Ctx, message string, data any) error {
+	return c.Status(fiber.StatusOK).JSON(model.WebResponse{
 		Success: true,
 		Message: message,
 		Data:    data,
@@ -56,4 +56,19 @@ func Created(c *fiber.Ctx, message string, data any, location string) error {
 // dipakai untuk operasi DELETE atau aksi yang tidak menghasilkan data baru.
 func NoContent(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusNoContent)
+}
+
+func FailValidation(c *fiber.Ctx, errors map[string]string) error {
+	return c.Status(fiber.StatusUnprocessableEntity).JSON(model.WebResponse{
+		Success: false,
+		Message: "validation fail",
+		Errors:  errors,
+	})
+}
+
+func Fail(c *fiber.Ctx, status int, message string) error {
+	return c.Status(status).JSON(model.WebResponse{
+		Success: false,
+		Message: message,
+	})
 }

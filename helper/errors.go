@@ -117,6 +117,14 @@ func ErrValidation(message string, fields []ValidationField) *AppError {
 	}
 }
 
+func ErrServiceUnavailable(message string) *AppError {
+	return &AppError{
+		StatusCode: http.StatusServiceUnavailable,
+		Code:       "SERVICE_UNAVAILABLE",
+		Message:    message,
+	}
+}
+
 func ErrRateLimited(message string) *AppError {
 	if message == "" {
 		message = "terlalu banyak percobaan, silakan coba lagi nanti"

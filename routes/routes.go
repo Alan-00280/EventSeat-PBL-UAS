@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/Alan-00280/EventSeat-PBL-UAS.git/helper"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -27,9 +28,9 @@ func healthCheck(pool *pgxpool.Pool) fiber.Handler {
 
 		if err := pool.Ping(ctx); err != nil {
 			// ERR 503 - Service Unavailable
-			return helper.ServiceUnavailable("database can't be reached")
+			return helper.ErrServiceUnavailable("database can't be reached")
 		}
 
-		return helper.Ok(c, "server and database is OK!", nil)
+		return helper.Success(c, "server and database is OK!", nil)
 	}
 }
