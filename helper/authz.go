@@ -135,7 +135,7 @@ func (p *PermissionSet) KnownRoles() []string {
 // Memeriksa apakah bisa akses pada level baris data
 func (ps *PermissionSet) AuthorizeOwnedResource(actor AuthUser, ownerID string, bypassPermission string) error {
 	if !ps.CanAccessOwnedResource(actor, ownerID, bypassPermission) {
-		return ErrForbidden("FORBIDDEN", "anda tidak memiliki hak akses terhadap resource ini")
+		return ErrForbidden("anda tidak memiliki hak akses terhadap resource ini")
 	}
 	return nil
 }
@@ -156,7 +156,7 @@ func GuardSelfRoleChange(actor AuthUser, targetUserID string) error {
 // memeriksa penghapusan diri sendiri
 func GuardSelfDelete(actor AuthUser, targetUserID string) error {
 	if actor.UserID != "" && actor.UserID == targetUserID {
-		return ErrForbidden("SELF_DELETE_FORBIDDEN", "tidak diperbolehkan menghapus akun sendiri")
+		return ErrForbidden("tidak diperbolehkan menghapus akun sendiri")
 	}
 	return nil
 }

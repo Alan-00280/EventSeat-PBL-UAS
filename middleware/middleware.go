@@ -69,7 +69,7 @@ func RequireJSON(c *fiber.Ctx) error {
 	return c.Next()
 }
 
-func Register(app *fiber.App, logger *slog.Logger, allowedOrigin string) {
+func Register(app *fiber.App, logger *slog.Logger, allowedOrigin []string) {
 	app.Use(requestid.New())
 	app.Use(recover.New())
 	app.Use(helmet.New())
@@ -78,13 +78,13 @@ func Register(app *fiber.App, logger *slog.Logger, allowedOrigin string) {
 }
 
 // func corsPolicy(allowedOrigin string) fiber.Handler : membatasi origin pemanggil API
-func corsPolicy(allowedOrigin string) fiber.Handler {
-	if strings.TrimSpace(allowedOrigin) == "" {
-		allowedOrigin = "http://localhost:5173/"
+func corsPolicy(allowedOrigin []string) fiber.Handler {
+	if len(allowedOrigin) == 0 {
+		allowedOrigin = append(allowedOrigin, "http://localhost:5173/")
 	}
 
 	return cors.New(cors.Config{
-		AllowOrigins: allowedOrigin,
+		AllowOrigins: strings.Join(allowedOrigin, ","),
 		AllowMethods: "GET,POST,PUT,PATCH,DELETE,OPTIONS",
 		AllowHeaders: "Origin,Content-Type,Accept,Authorization",
 	})
