@@ -44,45 +44,33 @@ func (e *AppError) WithFields(fields []ValidationField) *AppError {
 }
 
 func ErrBadRequest(code, message string) *AppError {
-	if code == "" {
-		code = "BAD_REQUEST"
-	}
 	return &AppError{
 		StatusCode: http.StatusBadRequest,
-		Code:       code,
+		Code:       "BAD_REQUEST",
 		Message:    message,
 	}
 }
 
-func ErrUnauthorized(code, message string) *AppError {
-	if code == "" {
-		code = "UNAUTHORIZED"
-	}
+func ErrUnauthorized(message string) *AppError {
 	return &AppError{
 		StatusCode: http.StatusUnauthorized,
-		Code:       code,
+		Code:       "UNAUTHORIZED",
 		Message:    message,
 	}
 }
 
-func ErrForbidden(code, message string) *AppError {
-	if code == "" {
-		code = "FORBIDDEN"
-	}
+func ErrForbidden(message string) *AppError {
 	return &AppError{
 		StatusCode: http.StatusForbidden,
-		Code:       code,
+		Code:       "FORBIDDEN",
 		Message:    message,
 	}
 }
 
-func ErrNotFound(code, message string) *AppError {
-	if code == "" {
-		code = "NOT_FOUND"
-	}
+func ErrNotFound(message string) *AppError {
 	return &AppError{
 		StatusCode: http.StatusNotFound,
-		Code:       code,
+		Code:       "NOT_FOUND",
 		Message:    message,
 	}
 }
@@ -109,13 +97,10 @@ func ErrUnsupportedMediaType(message string) *AppError {
 	}
 }
 
-func ErrConflict(code, message string) *AppError {
-	if code == "" {
-		code = "CONFLICT"
-	}
+func ErrConflict(message string) *AppError {
 	return &AppError{
 		StatusCode: http.StatusConflict,
-		Code:       code,
+		Code:       "CONFLICT",
 		Message:    message,
 	}
 }
