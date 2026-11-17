@@ -33,7 +33,7 @@ type ListQuery struct {
 	Sort     string
 	Order    string
 	IsActive *bool
-	// *UserFilter
+	*UserFilter
 }
 
 type Cursor struct {
@@ -52,7 +52,7 @@ type CursorQuery struct {
 	Limit    int
 	IsActive *bool
 	After    *Cursor
-	// *UserFilter
+	*UserFilter
 }
 
 // Error Response
@@ -62,4 +62,8 @@ type ErrorRespone struct {
 	Message   string            `json:"message"`
 	Fields    map[string]string `json:"fields,omitempty"`
 	RequestID string            `json:"request_id,omitempty"`
+}
+
+func (q ListQuery) Offset() int {
+	return (q.Page - 1) * q.Limit
 }
