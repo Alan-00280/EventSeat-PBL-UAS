@@ -4,15 +4,12 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/Alan-00280/EventSeat-PBL-UAS.git/helper"
+	"github.com/Alan-00280/EventSeat-PBL-UAS.git/middleware"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/helmet"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/hibiken/asynq"
 )
 
@@ -52,19 +49,19 @@ func NewFiberApp(env *Env, logger *slog.Logger) *fiber.App {
 		EnableStackTrace: env.AppEnv != "production",
 	}))
 
-	app.Use(requestid.New())
+	// HELLO WORLD!
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.SendString("Hello, World!")
+	})
 
-	app.Use(helmet.New())
 
-	app.Use(cors.New(cors.Config{
-		AllowOrigins:     strings.Join(env.AllowedOrigins, ","),
-		AllowMethods:     "GET,POST,PUT,PATCH,DELETE,OPTIONS",
-		AllowHeaders:     "Origin,Content-Type,Accept,Authorization,X-Request-ID",
-		ExposeHeaders:    "Location,Retry-After,X-Request-ID",
-		AllowCredentials: true,
-	}))
+	// Middleware
+	middleware.Register(app, logger, env.AllowedOrigins)
 
-	app.Use(accessLoggerMiddleware(logger))
+	// 404
+	app.Use(func(c *fiber.Ctx) error {
+		return helper.ErrNotFound("404 - routes not found")
+	})
 
 	return app
 }
