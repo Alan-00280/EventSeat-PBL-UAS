@@ -151,3 +151,11 @@ func ErrInternal(err error) *AppError {
 		Err:        err,
 	}
 }
+
+func ErrTooManyRequest(message string) *AppError {
+	return &AppError{
+		StatusCode: http.StatusTooManyRequests,
+		Code:       "TOO_MANY_REQUEST",
+		Message:    message,
+	}
+}
