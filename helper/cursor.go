@@ -13,7 +13,6 @@ type TimeIDCursor struct {
 	ID        string    `json:"i"`
 }
 
-
 func EncodeTimeIDCursor(createdAt time.Time, id string) (string, error) {
 	cleanID := strings.TrimSpace(id)
 	if createdAt.IsZero() || cleanID == "" {
@@ -89,7 +88,7 @@ func DecodeObjectIDCursor(encoded string) (string, error) {
 
 	var cursor ObjectIDCursor
 	if err := json.Unmarshal(raw, &cursor); err != nil {
-		return ObjectIDCursor{}, ErrBadRequest("INVALID_CURSOR", "struktur payload cursor tidak valid")
+		return "", ErrBadRequest("INVALID_CURSOR", "struktur payload cursor tidak valid")
 	}
 
 	cleanID := strings.ToLower(strings.TrimSpace(cursor.ID))
