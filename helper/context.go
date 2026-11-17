@@ -41,7 +41,7 @@ func AuthUserFromContext(ctx context.Context) (AuthUser, bool) {
 func MustAuthUserFromContext(ctx context.Context) (AuthUser, error) {
 	user, ok := AuthUserFromContext(ctx)
 	if !ok {
-		return AuthUser{}, ErrUnauthorized("UNAUTHORIZED", "autentikasi diperlukan untuk mengakses resource ini")
+		return AuthUser{}, ErrUnauthorized("autentikasi diperlukan untuk mengakses resource ini")
 	}
 	return user, nil
 }
