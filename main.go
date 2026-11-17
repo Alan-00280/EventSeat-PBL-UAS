@@ -11,6 +11,7 @@ import (
 
 	"github.com/Alan-00280/EventSeat-PBL-UAS.git/config"
 	"github.com/Alan-00280/EventSeat-PBL-UAS.git/database"
+	"github.com/Alan-00280/EventSeat-PBL-UAS.git/routes"
 )
 
 func main() {
@@ -34,7 +35,11 @@ func main() {
 	defer pool.Close()
 
 	// APP
-	app := config.NewFiberApp(env, logger)
+	deps := routes.Dependencies{
+		Pool: pool,
+	}
+
+	app := config.NewFiberApp(env, logger, deps)
 	port := env.AppPort
 
 	// RUNNING THE APP
