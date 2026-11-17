@@ -65,6 +65,7 @@ func NewPermissionSet(rows map[string][]string) *PermissionSet {
 	return ps
 }
 
+// Setara IsKnownRoles() di modul pembelajaran
 func (ps *PermissionSet) HasRole(role string) bool {
 	if ps == nil {
 		return false
@@ -73,6 +74,7 @@ func (ps *PermissionSet) HasRole(role string) bool {
 	return ok
 }
 
+// Setara Can() di modul pembelajaran
 func (ps *PermissionSet) HasPermission(role, permission string) bool {
 	if ps == nil {
 		return false
@@ -85,6 +87,7 @@ func (ps *PermissionSet) HasPermission(role, permission string) bool {
 	return allowed
 }
 
+// Setara PermissionOf() di modul pembelajaran
 func (ps *PermissionSet) PermissionsForRole(role string) []string {
 	if ps == nil {
 		return []string{}
@@ -112,12 +115,32 @@ func (ps *PermissionSet) CanAccessOwnedResource(actor AuthUser, ownerID string, 
 	return false
 }
 
+// KnownRoles() []string
+// Mengembalikan semua role yang ada
+func (p *PermissionSet) KnownRoles() []string {
+	result := []string{}
+
+	if p == nil {
+		return []string{}
+	}
+
+	for role := range p.rolePerms {
+		result = append(result, role)
+	}
+
+	sort.Strings(result)
+	return result
+}
+
+// Memeriksa apakah bisa akses pada level baris data
 func (ps *PermissionSet) AuthorizeOwnedResource(actor AuthUser, ownerID string, bypassPermission string) error {
 	if !ps.CanAccessOwnedResource(actor, ownerID, bypassPermission) {
 		return ErrForbidden("FORBIDDEN", "anda tidak memiliki hak akses terhadap resource ini")
 	}
 	return nil
 }
+
+// memeriksa pengubahan role diri sendiri
 func GuardSelfRoleChange(actor AuthUser, targetUserID string) error {
 	if actor.UserID != "" && actor.UserID == targetUserID {
 		return NewAppError(
@@ -130,6 +153,7 @@ func GuardSelfRoleChange(actor AuthUser, targetUserID string) error {
 	return nil
 }
 
+// memeriksa penghapusan diri sendiri
 func GuardSelfDelete(actor AuthUser, targetUserID string) error {
 	if actor.UserID != "" && actor.UserID == targetUserID {
 		return ErrForbidden("SELF_DELETE_FORBIDDEN", "tidak diperbolehkan menghapus akun sendiri")
