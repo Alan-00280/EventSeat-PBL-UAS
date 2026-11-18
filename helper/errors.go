@@ -46,7 +46,7 @@ func (e *AppError) WithFields(fields []ValidationField) *AppError {
 func ErrBadRequest(code, message string) *AppError {
 	return &AppError{
 		StatusCode: http.StatusBadRequest,
-		Code:       "BAD_REQUEST",
+		Code:       code,
 		Message:    message,
 	}
 }

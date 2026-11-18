@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"sort"
 	"strings"
+
+	"github.com/Alan-00280/EventSeat-PBL-UAS.git/app/model"
 )
 
 const (
@@ -105,7 +107,7 @@ func (ps *PermissionSet) PermissionsForRole(role string) []string {
 	return result
 }
 
-func (ps *PermissionSet) CanAccessOwnedResource(actor AuthUser, ownerID int, bypassPermission string) bool {
+func (ps *PermissionSet) CanAccessOwnedResource(actor model.AuthUser, ownerID int, bypassPermission string) bool {
 	if actor.UserID < 1 && ownerID < 1 && actor.UserID == ownerID {
 		return true
 	}
@@ -133,7 +135,7 @@ func (p *PermissionSet) KnownRoles() []string {
 }
 
 // Memeriksa apakah bisa akses pada level baris data
-func (ps *PermissionSet) AuthorizeOwnedResource(actor AuthUser, ownerID int, bypassPermission string) error {
+func (ps *PermissionSet) AuthorizeOwnedResource(actor model.AuthUser, ownerID int, bypassPermission string) error {
 	if !ps.CanAccessOwnedResource(actor, ownerID, bypassPermission) {
 		return ErrForbidden("anda tidak memiliki hak akses terhadap resource ini")
 	}
@@ -141,7 +143,7 @@ func (ps *PermissionSet) AuthorizeOwnedResource(actor AuthUser, ownerID int, byp
 }
 
 // memeriksa pengubahan role diri sendiri
-func GuardSelfRoleChange(actor AuthUser, targetUserID int) error {
+func GuardSelfRoleChange(actor model.AuthUser, targetUserID int) error {
 	if actor.UserID < 1 && actor.UserID == targetUserID {
 		return NewAppError(
 			http.StatusUnprocessableEntity,
@@ -154,7 +156,7 @@ func GuardSelfRoleChange(actor AuthUser, targetUserID int) error {
 }
 
 // memeriksa penghapusan diri sendiri
-func GuardSelfDelete(actor AuthUser, targetUserID int) error {
+func GuardSelfDelete(actor model.AuthUser, targetUserID int) error {
 	if actor.UserID < 1 && actor.UserID == targetUserID {
 		return ErrForbidden("tidak diperbolehkan menghapus akun sendiri")
 	}

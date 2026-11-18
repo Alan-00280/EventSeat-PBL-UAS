@@ -4,14 +4,17 @@ import (
 	"context"
 	"time"
 
+	"github.com/Alan-00280/EventSeat-PBL-UAS.git/app/service"
 	"github.com/Alan-00280/EventSeat-PBL-UAS.git/helper"
+	"github.com/Alan-00280/EventSeat-PBL-UAS.git/middleware"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Dependencies struct {
-	Pool *pgxpool.Pool
-	JWT  *helper.JWTManager
+	Pool        *pgxpool.Pool
+	JWT         *helper.JWTManager
+	AuthService *service.AuthService
 }
 
 func Register(app *fiber.App, deps Dependencies) {
@@ -20,6 +23,13 @@ func Register(app *fiber.App, deps Dependencies) {
 	// HEALTH CHECK (WITH DB POOL CONNECTION)
 	api.Get("/health", healthCheck(deps.Pool))
 
+	// AUTHENTICATION
+	auth := api.Group("/auth", middleware.RequireJSON)
+	auth.Post("/register", deps.AuthService.Register)
+	auth.Post("/login", middleware.GeneralRateLimiter(), deps.AuthService.Login)
+	auth.Post("/refresh", deps.AuthService.Refresh)
+	auth.Post("/logout", deps.AuthService.Logout)
+	auth.Get("/me", middleware.RequireAuth(deps.JWT), deps.AuthService.Me)
 }
 
 func healthCheck(pool *pgxpool.Pool) fiber.Handler {

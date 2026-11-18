@@ -3,6 +3,7 @@ package helper
 import (
 	"context"
 
+	"github.com/Alan-00280/EventSeat-PBL-UAS.git/app/model"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -14,47 +15,41 @@ const (
 	LocalAuthUserKey = "auth_user"
 )
 
-type AuthUser struct {
-	UserID int
-	Role   string
-	Email  string
-}
-
-func WithAuthUser(ctx context.Context, user AuthUser) context.Context {
+func WithAuthUser(ctx context.Context, user model.AuthUser) context.Context {
 	if ctx == nil {
 		ctx = context.Background()
 	}
 	return context.WithValue(ctx, authUserCtxKey{}, user)
 }
 
-func AuthUserFromContext(ctx context.Context) (AuthUser, bool) {
+func AuthUserFromContext(ctx context.Context) (model.AuthUser, bool) {
 	if ctx == nil {
-		return AuthUser{}, false
+		return model.AuthUser{}, false
 	}
-	user, ok := ctx.Value(authUserCtxKey{}).(AuthUser)
+	user, ok := ctx.Value(authUserCtxKey{}).(model.AuthUser)
 	if !ok || user.UserID < 1 {
-		return AuthUser{}, false
+		return model.AuthUser{}, false
 	}
 	return user, true
 }
 
-func MustAuthUserFromContext(ctx context.Context) (AuthUser, error) {
+func MustAuthUserFromContext(ctx context.Context) (model.AuthUser, error) {
 	user, ok := AuthUserFromContext(ctx)
 	if !ok {
-		return AuthUser{}, ErrUnauthorized("autentikasi diperlukan untuk mengakses resource ini")
+		return model.AuthUser{}, ErrUnauthorized("autentikasi diperlukan untuk mengakses resource ini")
 	}
 	return user, nil
 }
 
-func SetFiberAuthUser(c *fiber.Ctx, user AuthUser) {
+func SetFiberAuthUser(c *fiber.Ctx, user model.AuthUser) {
 	c.Locals(LocalAuthUserKey, user)
 	c.Locals(LocalUserIDKey, user.UserID)
 	c.Locals(LocalRoleKey, user.Role)
 	c.SetUserContext(WithAuthUser(c.UserContext(), user))
 }
 
-func AuthUserFromFiber(c *fiber.Ctx) (AuthUser, bool) {
-	if user, ok := c.Locals(LocalAuthUserKey).(AuthUser); ok && user.UserID < 1 {
+func AuthUserFromFiber(c *fiber.Ctx) (model.AuthUser, bool) {
+	if user, ok := c.Locals(LocalAuthUserKey).(model.AuthUser); ok && user.UserID < 1 {
 		return user, true
 	}
 	return AuthUserFromContext(c.UserContext())

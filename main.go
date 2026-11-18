@@ -10,6 +10,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Alan-00280/EventSeat-PBL-UAS.git/app/repository"
+	"github.com/Alan-00280/EventSeat-PBL-UAS.git/app/service"
 	"github.com/Alan-00280/EventSeat-PBL-UAS.git/config"
 	"github.com/Alan-00280/EventSeat-PBL-UAS.git/database"
 	"github.com/Alan-00280/EventSeat-PBL-UAS.git/helper"
@@ -59,12 +61,24 @@ func main() {
 
 	// APP VALIDATOR
 	appValidator := helper.NewValidator(passwordCommonSet)
-	logger.Info("Created AppValidator{}", slog.Any("App Validator", appValidator))
+
+	// REPO & SERVICES
+	userRepo := repository.NewUserRepository(pool)
+
+	authRepo := repository.NewAuthRepo(pool)
+	authService := service.NewAuthService(
+		userRepo,
+		authRepo,
+		jwtManager,
+		env.JWTRefreshTTL,
+		appValidator,
+	)
 
 	// APP
 	deps := routes.Dependencies{
-		Pool: pool,
-		JWT:  jwtManager,
+		Pool:        pool,
+		JWT:         jwtManager,
+		AuthService: authService,
 	}
 
 	app := config.NewFiberApp(env, logger, deps)

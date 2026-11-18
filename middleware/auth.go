@@ -31,7 +31,7 @@ func RequireAuth(jwt *helper.JWTManager) fiber.Handler {
 			return helper.ErrUnauthorized("token invalid")
 		}
 
-		c.Locals(helper.LocalAuthUserKey, authUser)
+		helper.SetFiberAuthUser(c, authUser)
 		return c.Next()
 	}
 }

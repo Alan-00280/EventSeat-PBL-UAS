@@ -36,7 +36,6 @@ func NewAuthService(
 	jwt *helper.JWTManager,
 	refreshTTL time.Duration,
 	appValidator *helper.AppValidator,
-	permissionSet *helper.PermissionSet,
 ) *AuthService {
 	return &AuthService{
 		users:         users,
@@ -44,7 +43,6 @@ func NewAuthService(
 		jwt:           jwt,
 		refreshTTL:    refreshTTL,
 		appValidator:  appValidator,
-		permissionSet: permissionSet,
 	}
 }
 
