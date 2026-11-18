@@ -133,7 +133,7 @@ func LoadEnv() (*Env, error) {
 
 		JWTSecret:     jwtSecret,
 		JWTAccessTTL:  getEnvAsDuration("JWT_ACCESS_TTL_MINUTES", 15*time.Minute),
-		JWTRefreshTTL: getEnvAsDuration("JWT_REFRESH_TTL_DAYS", 7) * 24 * time.Hour,
+		JWTRefreshTTL: time.Duration(getEnvAsInt("JWT_REFRESH_TTL_DAYS", 7)) * 24 * time.Hour,
 		JWTIssuer:     getEnv("JWT_ISSUER", "uas_backend_prak"),
 
 		SMTPHost:     getEnv("SMTP_HOST", "localhost"),

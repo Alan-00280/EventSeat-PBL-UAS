@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS users (
     role       VARCHAR(126) NOT NULL DEFAULT 'user', -- Role disiapkan sekarang, tetapi baru dipakai untuk mengatur hak akses
     is_active  BOOLEAN      NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
  
 -- Keunikan username tanpa membedakan huruf besar dan kecil.
