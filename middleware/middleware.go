@@ -91,7 +91,7 @@ func corsPolicy(allowedOrigin []string) fiber.Handler {
 }
 
 // Middleware untuk melindungi endpoint yang rentan
-// digunakan: Checkout
+// digunakan: Login
 func GeneralRateLimiter() fiber.Handler {
 	return limiter.New(limiter.Config{
 		Max:        3,
