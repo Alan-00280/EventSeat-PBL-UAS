@@ -49,7 +49,7 @@ func SetFiberAuthUser(c *fiber.Ctx, user model.AuthUser) {
 }
 
 func AuthUserFromFiber(c *fiber.Ctx) (model.AuthUser, bool) {
-	if user, ok := c.Locals(LocalAuthUserKey).(model.AuthUser); ok && user.UserID < 1 {
+	if user, ok := c.Locals(LocalAuthUserKey).(model.AuthUser); ok && user.UserID >= 1 {
 		return user, true
 	}
 	return AuthUserFromContext(c.UserContext())
