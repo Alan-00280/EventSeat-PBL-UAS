@@ -38,11 +38,11 @@ func NewAuthService(
 	appValidator *helper.AppValidator,
 ) *AuthService {
 	return &AuthService{
-		users:         users,
-		tokens:        tokens,
-		jwt:           jwt,
-		refreshTTL:    refreshTTL,
-		appValidator:  appValidator,
+		users:        users,
+		tokens:       tokens,
+		jwt:          jwt,
+		refreshTTL:   refreshTTL,
+		appValidator: appValidator,
 	}
 }
 
@@ -67,7 +67,7 @@ func (s *AuthService) Register(c *fiber.Ctx) error {
 
 	if errs := helper.ValidateStruct(req, *s.appValidator); len(errs) > 0 {
 		vals := helper.ToValidationFields(errs)
-		return helper.ErrValidation("s", vals)
+		return helper.ErrValidation("Validasi Register", vals)
 	}
 
 	hash_password, err := helper.HashPassword(req.Password)
@@ -108,7 +108,7 @@ func (s *AuthService) Login(c *fiber.Ctx) error {
 
 	if errs := helper.ValidateStruct(req, *s.appValidator); len(errs) > 0 {
 		vals := helper.ToValidationFields(errs)
-		return helper.ErrValidation("s", vals)
+		return helper.ErrValidation("Validasi Register", vals)
 	}
 
 	user, err := s.users.FindByUsername(ctx, req.Username)
