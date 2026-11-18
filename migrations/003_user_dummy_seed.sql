@@ -9,7 +9,7 @@ VALUES
     (
         'staff_event',
         'staff@eventseat.com',
-        '$2a$12$Zjs2kHdlKiXvlHNjTpRK6OgKfc/CF9899JRbaKzdD4Dhmylx2xy5q',
+        '$2a$12$r5beRCkvZKslIfHMMco3Qe75elv6.L826UtL7AS4mZrVe6WnK1D5O',
         'staff',
         TRUE,
         NOW(),
@@ -18,7 +18,7 @@ VALUES
     (
         'staff_ticketing',
         'ticketing@eventseat.com',
-        '$2a$12$Zjs2kHdlKiXvlHNjTpRK6OgKfc/CF9899JRbaKzdD4Dhmylx2xy5q',
+        '$2a$12$r5beRCkvZKslIfHMMco3Qe75elv6.L826UtL7AS4mZrVe6WnK1D5O',
         'staff',
         TRUE,
         NOW(),
@@ -29,7 +29,7 @@ VALUES
     (
         'budi_santoso',
         'budi@example.com',
-        '$2a$12$Zjs2kHdlKiXvlHNjTpRK6OgKfc/CF9899JRbaKzdD4Dhmylx2xy5q',
+        '$2a$12$r5beRCkvZKslIfHMMco3Qe75elv6.L826UtL7AS4mZrVe6WnK1D5O',
         'user',
         TRUE,
         NOW(),
@@ -38,7 +38,7 @@ VALUES
     (
         'siti_aminah',
         'siti@example.com',
-        '$2a$12$Zjs2kHdlKiXvlHNjTpRK6OgKfc/CF9899JRbaKzdD4Dhmylx2xy5q',
+        '$2a$12$r5beRCkvZKslIfHMMco3Qe75elv6.L826UtL7AS4mZrVe6WnK1D5O',
         'user',
         TRUE,
         NOW(),
@@ -49,7 +49,7 @@ VALUES
     (
         'user_inactive',
         'inactive@example.com',
-        '$2a$12$Zjs2kHdlKiXvlHNjTpRK6OgKfc/CF9899JRbaKzdD4Dhmylx2xy5q',
+        '$2a$12$r5beRCkvZKslIfHMMco3Qe75elv6.L826UtL7AS4mZrVe6WnK1D5O',
         'user',
         FALSE,
         NOW(),
