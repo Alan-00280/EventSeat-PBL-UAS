@@ -55,7 +55,11 @@ func main() {
 		logger.Error("gagal memuat password umum", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
-	logger.Info("Loaded Password Common Set", slog.Any("Data", passwordCommonSet))
+	logger.Info("Loaded Password Common Set", slog.Any("Loaded From", passwordCommonPath))
+
+	// APP VALIDATOR
+	appValidator := helper.NewValidator(passwordCommonSet)
+	logger.Info("Created AppValidator{}", slog.Any("App Validator", appValidator))
 
 	// APP
 	deps := routes.Dependencies{
