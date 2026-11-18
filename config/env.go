@@ -44,6 +44,7 @@ type Env struct {
 	JWTSecret     string
 	JWTAccessTTL  time.Duration
 	JWTRefreshTTL time.Duration
+	JWTIssuer     string
 
 	SMTPHost     string
 	SMTPPort     int
@@ -131,8 +132,9 @@ func LoadEnv() (*Env, error) {
 		OutboxBatchSize:    getEnvAsInt("OUTBOX_BATCH_SIZE", 50),
 
 		JWTSecret:     jwtSecret,
-		JWTAccessTTL:  getEnvAsDuration("JWT_ACCESS_TTL", 15*time.Minute),
-		JWTRefreshTTL: getEnvAsDuration("JWT_REFRESH_TTL", 7*24*time.Hour),
+		JWTAccessTTL:  getEnvAsDuration("JWT_ACCESS_TTL_MINUTES", 15*time.Minute),
+		JWTRefreshTTL: time.Duration(getEnvAsInt("JWT_REFRESH_TTL_DAYS", 7)) * 24 * time.Hour,
+		JWTIssuer:     getEnv("JWT_ISSUER", "uas_backend_prak"),
 
 		SMTPHost:     getEnv("SMTP_HOST", "localhost"),
 		SMTPPort:     getEnvAsInt("SMTP_PORT", 1025),
@@ -158,7 +160,6 @@ func (e *Env) PostgresDSN() string {
 	u.RawQuery = q.Encode()
 	return u.String()
 }
-
 
 func (e *Env) RedisAddr() string {
 	return fmt.Sprintf("%s:%s", e.RedisHost, e.RedisPort)

@@ -1,9 +1,12 @@
 package helper
 
 import (
+	"bufio"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"os"
+	"path/filepath"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -12,12 +15,48 @@ import (
 // Semakin besar nilainya, semakin lambat percobaan menebak password satu per satu.
 // Nilai 12 adalah kompromi yang lazim: cukup lambat bagi penyerang,
 // masih cukup cepat untuk sekali login.
-const bcryptCost = 12
+const (
+	minPasswordLength = 8
+	bcryptCost        = 12
+)
+
+type PasswordCommonSet struct {
+	PasswordSet map[string]struct{}
+}
+
+func NewPasswordCommonSet(path string) (*PasswordCommonSet, error) {
+	passwordSet := make(map[string]struct{})
+
+	password_path, err := filepath.Abs(path)
+	if err != nil {
+		return nil, err
+	}
+
+	file, err := os.Open(password_path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		weak_password := scanner.Text()
+		passwordSet[weak_password] = struct{}{}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return &PasswordCommonSet{
+		PasswordSet: passwordSet,
+	}, nil
+}
 
 // dummyHash dipakai ketika username tidak ditemukan, agar waktu tanggap
 // login tetap mirip dengan kasus password salah. Tanpa ini, selisih waktu
 // respons membocorkan username mana yang terdaftar (timing attack).
-var dummyHash = []byte("$2a$12$abcdefghijklmnopqrstuuLKa3Bt1TCmU/6zvhZ8x4nq1yBiuGvS")
+var dummyHash = []byte("$2a$12$abcdede.4fYV4cZrTHuoDB.MvJzRn..01KYucHpKikuOEcCKKK")
 
 // HashPassword mengubah password plaintext menjadi hash bcrypt yang tidak
 // dapat dikembalikan ke bentuk aslinya. bcrypt menyisipkan salt acak ke dalam

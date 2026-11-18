@@ -14,11 +14,12 @@ import (
 // validator.New() melakukan refleksi dan menyimpan hasilnya dalam cache
 // internal. Membuatnya ulang pada setiap request berarti membuang cache
 // tersebut berkali-kali — mahal dan tidak ada gunanya.
-var validate = newValidator()
+type AppValidator struct {
+	validate          *validator.Validate
+	passwordCommonSet *PasswordCommonSet
+}
 
-const minPasswordLength = 8
-
-func newValidator() *validator.Validate {
+func NewValidator(passwordCommonSet *PasswordCommonSet) *AppValidator {
 	v := validator.New()
 
 	// Tanpa ini, pesan error menyebut nama field Go (misalnya "Username"),
@@ -51,42 +52,40 @@ func newValidator() *validator.Validate {
 
 	// Aturan custom: password harus memenuhi syarat kekuatan minimum.
 	_ = v.RegisterValidation("strongpassword", func(fl validator.FieldLevel) bool {
-		return passwordStrength(fl.Field().String()) == ""
+		return checkPasswordStrength(fl.Field().String(), *passwordCommonSet) == ""
 	})
 
-	return v
+	return &AppValidator{
+		validate:          v,
+		passwordCommonSet: passwordCommonSet,
+	}
 }
 
 // ValidateStruct menjalankan seluruh aturan validasi pada tag struct dan
 // mengembalikan map nama field ke pesan error berbahasa Indonesia.
 // Mengembalikan nil berarti tidak ada pelanggaran.
-func ValidateStruct(s any) map[string]string {
-	err := validate.Struct(s)
+func ValidateStruct(s any, appValidator AppValidator) map[string]string {
+	validate := appValidator.validate
 
+	err := validate.Struct(s)
 	if err == nil {
 		return nil
 	}
 
-	// Terjadi bila yang dikirim bukan struct — itu kesalahan programmer,
-	// bukan kesalahan pemakai API. Jangan diam-diam dianggap valid.
 	var invalid *validator.InvalidValidationError
 	if errors.As(err, &invalid) {
-		return map[string]string{
-			"_": "objek yang divalidasi tidak sah",
-		}
+		return map[string]string{"_": "objek yang divalidasi tidak sah"}
 	}
 
 	var fieldErrors validator.ValidationErrors
 	if !errors.As(err, &fieldErrors) {
-		return map[string]string{
-			"_": "validasi gagal",
-		}
+		return map[string]string{"_": "validasi gagal"}
 	}
 
 	result := make(map[string]string, len(fieldErrors))
 	for _, fe := range fieldErrors {
 		if _, exists := result[fe.Field()]; !exists {
-			result[fe.Field()] = messageFor(fe)
+			result[fe.Field()] = messageFor(fe, appValidator)
 		}
 	}
 
@@ -96,7 +95,7 @@ func ValidateStruct(s any) map[string]string {
 // messageFor menerjemahkan nama tag validasi menjadi kalimat yang dapat dibaca
 // pengguna dalam bahasa Indonesia. Daftar ini terpusat: menambah satu tag baru
 // cukup menambah satu case di sini, tidak menyebar ke banyak file.
-func messageFor(fe validator.FieldError) string {
+func messageFor(fe validator.FieldError, appValidator AppValidator) string {
 	switch fe.Tag() {
 	case "required":
 		return "wajib diisi"
@@ -126,7 +125,7 @@ func messageFor(fe validator.FieldError) string {
 		return "hanya boleh huruf, angka, titik, dan garis bawah"
 	case "strongpassword":
 		if value, ok := fe.Value().(string); ok {
-			return passwordStrength(value)
+			return checkPasswordStrength(value, *appValidator.passwordCommonSet)
 		}
 		return "password tidak memenuhi syarat"
 	case "oneof":
@@ -139,35 +138,32 @@ func messageFor(fe validator.FieldError) string {
 	}
 }
 
-// passwordStrength memeriksa kekuatan password dan mengembalikan pesan error
+// checkPasswordStrength memeriksa kekuatan password dan mengembalikan pesan error
 // jika tidak memenuhi syarat. Mengembalikan string kosong berarti password valid.
-func passwordStrength(password string) string {
+func checkPasswordStrength(password string, pwCommon PasswordCommonSet) string {
 	if len(password) < minPasswordLength {
-		return "minimal 8 karakter"
+		return "minimum 8 character of password"
 	}
 
-	var hasLetter, hasDigit bool
-	for _, r := range password {
+	var hasLetter, hasDigit bool = false, false
+	for _, c := range password {
 		switch {
-		case unicode.IsLetter(r):
+		case unicode.IsLetter(c):
 			hasLetter = true
-		case unicode.IsDigit(r):
+		case unicode.IsDigit(c):
 			hasDigit = true
 		}
 	}
+
 	if !hasLetter || !hasDigit {
-		return "harus memuat huruf dan angka"
+		return "passsword must contain mix of letter and numbers"
 	}
 
-	// Daftar ini sengaja sangat pendek. Sistem sungguhan memakai daftar
-	// berisi jutaan password yang pernah bocor (seperti HaveIBeenPwned).
-	weak := map[string]bool{
-		"password1": true, "12345678": true, "qwerty123": true,
-		"admin123": true, "password123": true,
-	}
-	if weak[strings.ToLower(password)] {
-		return "password terlalu umum"
+	commonSet := pwCommon.PasswordSet
+	if _, exists := commonSet[password]; exists {
+		return "password's too common"
 	}
 
 	return ""
+
 }
