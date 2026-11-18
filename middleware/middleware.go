@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Alan-00280/EventSeat-PBL-UAS.git/app/model"
 	"github.com/Alan-00280/EventSeat-PBL-UAS.git/helper"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -23,7 +24,7 @@ func RequestLogger(logger *slog.Logger) fiber.Handler {
 
 		status := c.Response().StatusCode()
 		if err != nil {
-			var appErr *helper.AppError
+			var appErr *model.AppError
 			if errors.As(err, &appErr) {
 				status = appErr.StatusCode
 			} else {

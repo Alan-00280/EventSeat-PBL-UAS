@@ -54,3 +54,8 @@ func AuthUserFromFiber(c *fiber.Ctx) (model.AuthUser, bool) {
 	}
 	return AuthUserFromContext(c.UserContext())
 }
+
+func RequestID(c *fiber.Ctx) string {
+	reqID, _ := c.Locals("requestid").(string)
+	return reqID
+}

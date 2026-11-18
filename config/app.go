@@ -2,10 +2,12 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"time"
 
+	"github.com/Alan-00280/EventSeat-PBL-UAS.git/app/model"
 	"github.com/Alan-00280/EventSeat-PBL-UAS.git/helper"
 	"github.com/Alan-00280/EventSeat-PBL-UAS.git/middleware"
 	"github.com/Alan-00280/EventSeat-PBL-UAS.git/routes"
@@ -105,7 +107,7 @@ func resolveHTTPStatus(c *fiber.Ctx, err error) int {
 		return c.Response().StatusCode()
 	}
 
-	var appErr *helper.AppError
+	var appErr *model.AppError
 	if errors.As(err, &appErr) {
 		return appErr.StatusCode
 	}
@@ -120,59 +122,77 @@ func resolveHTTPStatus(c *fiber.Ctx, err error) int {
 
 func newErrorHandler(logger *slog.Logger) fiber.ErrorHandler {
 	return func(c *fiber.Ctx, err error) error {
-		reqID, _ := c.Locals("requestid").(string)
+		requestID := helper.RequestID(c)
 
-		var appErr *helper.AppError
-		if errors.As(err, &appErr) {
-			var fields []ErrorDetail
-			if len(appErr.Fields) > 0 {
-				fields = make([]ErrorDetail, 0, len(appErr.Fields))
-				for _, f := range appErr.Fields {
-					fields = append(fields, ErrorDetail{
-						Field:   f.Field,
-						Message: f.Message,
-					})
-				}
-			}
-
-			return c.Status(appErr.StatusCode).JSON(ErrorResponse{
-				Success:   false,
-				Code:      appErr.Code,
-				Message:   appErr.Message,
-				Fields:    fields,
-				RequestID: reqID,
-			})
-		}
-
+		var appErr *model.AppError
 		var fiberErr *fiber.Error
-		if errors.As(err, &fiberErr) {
-			code := httpStatusToCode(fiberErr.Code)
-			msg := fiberErr.Message
-			if fiberErr.Code == http.StatusRequestEntityTooLarge {
-				code = "PAYLOAD_TOO_LARGE"
-				msg = "ukuran payload melebihi batas maksimal 1 MB"
+
+		// Normalize incoming errors.
+		switch {
+		case errors.As(err, &appErr):
+			// Already an application error.
+
+		case errors.As(err, &fiberErr):
+			appErr = &model.AppError{
+				StatusCode: fiberErr.Code,
+				Code:       httpStatusToCode(fiberErr.Code),
+				Message:    fiberErr.Message,
 			}
 
-			return c.Status(fiberErr.Code).JSON(ErrorResponse{
-				Success:   false,
-				Code:      code,
-				Message:   msg,
-				RequestID: reqID,
-			})
+			if fiberErr.Code == fiber.StatusRequestEntityTooLarge {
+				appErr.Code = "PAYLOAD_TOO_LARGE"
+				appErr.Message = "ukuran payload melebihi batas yang diizinkan"
+			}
+
+		default:
+			appErr = helper.ErrInternal(err)
 		}
 
-		logger.Error("unhandled_internal_error",
-			slog.String("request_id", reqID),
+		// Validate HTTP status.
+		if appErr.StatusCode < 400 || appErr.StatusCode > 599 {
+			appErr = helper.ErrInternal(
+				fmt.Errorf("invalid application error status: %d", appErr.StatusCode),
+			)
+		}
+
+		// Log according to error severity.
+		logAttrs := []any{
+			slog.String("request_id", requestID),
 			slog.String("method", c.Method()),
 			slog.String("path", c.Path()),
-			slog.Any("error", err),
-		)
+			slog.String("code", appErr.Code),
+			slog.Int("status", appErr.StatusCode),
+		}
 
-		return c.Status(http.StatusInternalServerError).JSON(ErrorResponse{
+		if appErr.StatusCode >= fiber.StatusInternalServerError {
+			logger.Error(
+				"request_failed",
+				append(logAttrs, slog.Any("error", appErr.Unwrap()))...,
+			)
+		} else {
+			logger.Warn("request_rejected", logAttrs...)
+		}
+
+		// Build validation details.
+		var fields []model.ValidationField
+		if len(appErr.Fields) > 0 {
+			fields = make([]model.ValidationField, 0, len(appErr.Fields))
+
+			for _, field := range appErr.Fields {
+				fields = append(fields, model.ValidationField{
+					Field:   field.Field,
+					Message: field.Message,
+				})
+			}
+		}
+
+		// Return normalized error response.
+		return c.Status(appErr.StatusCode).JSON(model.ErrorResponse{
 			Success:   false,
-			Code:      "INTERNAL_SERVER_ERROR",
-			Message:   "terjadi kesalahan internal pada server",
-			RequestID: reqID,
+			Code:      appErr.Code,
+			Message:   appErr.Message,
+			Fields:    fields,
+			RequestID: requestID,
 		})
 	}
 }
