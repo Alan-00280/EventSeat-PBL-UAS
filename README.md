@@ -1,12 +1,12 @@
 # EventSeat
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Go-1.24+-%2300ADD8.svg?&logo=go&logoColor=white" alt="Go">
-  <img src="https://img.shields.io/badge/Fiber-v2-00ACD7?style=flat&logo=gofiber&logoColor=white" alt="Fiber v2">
-  <img src="https://img.shields.io/badge/PostgreSQL-16-336791?style=flat&logo=postgresql&logoColor=white" alt="PostgreSQL">
-  <img src="https://img.shields.io/badge/JWT-v5-000000?style=flat&logo=jsonwebtokens&logoColor=white" alt="JWT">
-  <img src="https://img.shields.io/badge/Redis-7.x-DC382D?style=flat&logo=redis&logoColor=white" alt="Redis">
-  <img src="https://img.shields.io/badge/MongoDB-7.x-47A248?style=flat&logo=mongodb&logoColor=white" alt="MongoDB">
+  <a href="https://go.dev/" target="_blank"><img src="https://img.shields.io/badge/Go-1.24+-00ADD8?style=flat&logo=go&logoColor=white" alt="Go"></a>
+  <a href="https://gofiber.io/" target="_blank"><img src="https://img.shields.io/badge/Fiber-v2-00ACD7?style=flat&logo=gofiber&logoColor=white" alt="Fiber v2"></a>
+  <a href="https://www.postgresql.org/" target="_blank"><img src="https://img.shields.io/badge/PostgreSQL-16-336791?style=flat&logo=postgresql&logoColor=white" alt="PostgreSQL"></a>
+  <a href="https://jwt.io/" target="_blank"><img src="https://img.shields.io/badge/JWT-v5-000000?style=flat&logo=jsonwebtokens&logoColor=white" alt="JWT"></a>
+  <a href="https://redis.io/" target="_blank"><img src="https://img.shields.io/badge/Redis-7.x-DC382D?style=flat&logo=redis&logoColor=white" alt="Redis"></a>
+  <a href="https://www.mongodb.com/" target="_blank"><img src="https://img.shields.io/badge/MongoDB-7.x-47A248?style=flat&logo=mongodb&logoColor=white" alt="MongoDB"></a>
 </p>
 
 Backend REST API berbasis **Go** dan **Fiber v2** untuk manajemen pendaftaran seminar, workshop, dan kompetisi kampus berkapasitas terbatas, beserta pengelolaan tiket event, notifikasi asinkron, dan feedback peserta.
