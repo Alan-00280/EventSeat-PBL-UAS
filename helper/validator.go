@@ -16,8 +16,6 @@ import (
 // tersebut berkali-kali — mahal dan tidak ada gunanya.
 var validate = newValidator()
 
-const minPasswordLength = 8
-
 func newValidator() *validator.Validate {
 	v := validator.New()
 

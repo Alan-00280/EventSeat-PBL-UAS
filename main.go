@@ -6,11 +6,13 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
 	"github.com/Alan-00280/EventSeat-PBL-UAS.git/config"
 	"github.com/Alan-00280/EventSeat-PBL-UAS.git/database"
+	"github.com/Alan-00280/EventSeat-PBL-UAS.git/helper"
 	"github.com/Alan-00280/EventSeat-PBL-UAS.git/routes"
 )
 
@@ -34,9 +36,31 @@ func main() {
 	}
 	defer pool.Close()
 
+	// JWT MANAGER
+	jwtManager := helper.NewJWTManager(
+		env.JWTSecret,
+		env.JWTIssuer,
+		env.JWTAccessTTL,
+	)
+
+	// COMMON PASSWORD
+	passwordCommonPath, err := filepath.Abs("./files/common_password.txt")
+	if err != nil {
+		logger.Error("gagal memuat password umum", slog.String("error", err.Error()))
+		os.Exit(1)
+	}
+
+	passwordCommonSet, err := helper.NewPasswordCommonSet(passwordCommonPath)
+	if err != nil {
+		logger.Error("gagal memuat password umum", slog.String("error", err.Error()))
+		os.Exit(1)
+	}
+	logger.Info("Loaded Password Common Set", slog.Any("Data", passwordCommonSet))
+
 	// APP
 	deps := routes.Dependencies{
 		Pool: pool,
+		JWT:  jwtManager,
 	}
 
 	app := config.NewFiberApp(env, logger, deps)

@@ -11,6 +11,7 @@ import (
 
 type Dependencies struct {
 	Pool *pgxpool.Pool
+	JWT  *helper.JWTManager
 }
 
 func Register(app *fiber.App, deps Dependencies) {
