@@ -152,3 +152,18 @@ func ErrTooManyRequest(message string) *AppError {
 		Message:    message,
 	}
 }
+
+func ToValidationFields(errs map[string]string) []ValidationField {
+	vals := []ValidationField{}
+
+	for field, err := range errs {
+		val := ValidationField{
+			Field:   field,
+			Message: err,
+		}
+
+		vals = append(vals, val)
+	}
+
+	return vals
+}

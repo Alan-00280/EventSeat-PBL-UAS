@@ -105,8 +105,8 @@ func (ps *PermissionSet) PermissionsForRole(role string) []string {
 	return result
 }
 
-func (ps *PermissionSet) CanAccessOwnedResource(actor AuthUser, ownerID string, bypassPermission string) bool {
-	if actor.UserID != "" && ownerID != "" && actor.UserID == ownerID {
+func (ps *PermissionSet) CanAccessOwnedResource(actor AuthUser, ownerID int, bypassPermission string) bool {
+	if actor.UserID < 1 && ownerID < 1 && actor.UserID == ownerID {
 		return true
 	}
 	if bypassPermission != "" && ps.HasPermission(actor.Role, bypassPermission) {
@@ -133,7 +133,7 @@ func (p *PermissionSet) KnownRoles() []string {
 }
 
 // Memeriksa apakah bisa akses pada level baris data
-func (ps *PermissionSet) AuthorizeOwnedResource(actor AuthUser, ownerID string, bypassPermission string) error {
+func (ps *PermissionSet) AuthorizeOwnedResource(actor AuthUser, ownerID int, bypassPermission string) error {
 	if !ps.CanAccessOwnedResource(actor, ownerID, bypassPermission) {
 		return ErrForbidden("anda tidak memiliki hak akses terhadap resource ini")
 	}
@@ -141,8 +141,8 @@ func (ps *PermissionSet) AuthorizeOwnedResource(actor AuthUser, ownerID string, 
 }
 
 // memeriksa pengubahan role diri sendiri
-func GuardSelfRoleChange(actor AuthUser, targetUserID string) error {
-	if actor.UserID != "" && actor.UserID == targetUserID {
+func GuardSelfRoleChange(actor AuthUser, targetUserID int) error {
+	if actor.UserID < 1 && actor.UserID == targetUserID {
 		return NewAppError(
 			http.StatusUnprocessableEntity,
 			"SELF_ROLE_CHANGE_FORBIDDEN",
@@ -154,8 +154,8 @@ func GuardSelfRoleChange(actor AuthUser, targetUserID string) error {
 }
 
 // memeriksa penghapusan diri sendiri
-func GuardSelfDelete(actor AuthUser, targetUserID string) error {
-	if actor.UserID != "" && actor.UserID == targetUserID {
+func GuardSelfDelete(actor AuthUser, targetUserID int) error {
+	if actor.UserID < 1 && actor.UserID == targetUserID {
 		return ErrForbidden("tidak diperbolehkan menghapus akun sendiri")
 	}
 	return nil

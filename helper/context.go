@@ -9,13 +9,13 @@ import (
 type authUserCtxKey struct{}
 
 const (
-	LocalUserIDKey = "user_id"
-	LocalRoleKey = "role"
+	LocalUserIDKey   = "user_id"
+	LocalRoleKey     = "role"
 	LocalAuthUserKey = "auth_user"
 )
 
 type AuthUser struct {
-	UserID string
+	UserID int
 	Role   string
 	Email  string
 }
@@ -32,7 +32,7 @@ func AuthUserFromContext(ctx context.Context) (AuthUser, bool) {
 		return AuthUser{}, false
 	}
 	user, ok := ctx.Value(authUserCtxKey{}).(AuthUser)
-	if !ok || user.UserID == "" {
+	if !ok || user.UserID < 1 {
 		return AuthUser{}, false
 	}
 	return user, true
@@ -54,7 +54,7 @@ func SetFiberAuthUser(c *fiber.Ctx, user AuthUser) {
 }
 
 func AuthUserFromFiber(c *fiber.Ctx) (AuthUser, bool) {
-	if user, ok := c.Locals(LocalAuthUserKey).(AuthUser); ok && user.UserID != "" {
+	if user, ok := c.Locals(LocalAuthUserKey).(AuthUser); ok && user.UserID < 1 {
 		return user, true
 	}
 	return AuthUserFromContext(c.UserContext())
