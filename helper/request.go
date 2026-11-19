@@ -34,9 +34,8 @@ var allowedSort = map[string]bool{
 	"id":         true,
 	"created_at": true,
 	"updated_at": true,
-	"title":      true,
-	"name":       true,
-	"start_time": true,
+	"username":   true,
+	"email":      true,
 }
 
 // ParseListQuery membaca query string dan menghasilkan ListQuery dengan nilai

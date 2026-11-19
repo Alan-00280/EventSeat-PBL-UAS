@@ -11,20 +11,31 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/helmet"
-	"github.com/gofiber/fiber/v2/middleware/limiter"
-	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 )
 
-func RequestLogger(logger *slog.Logger) fiber.Handler {
+func RequestLogger(baseLogger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		start := time.Now()
-		err := c.Next()
+
 		requestID, _ := c.Locals("requestid").(string)
 
+		reqLogger := baseLogger.With(
+			slog.String("request_id", requestID),
+			slog.String("method", c.Method()),
+			slog.String("path", c.Path()),
+			slog.String("ip", c.IP()),
+		)
+
+		// c.SetUserContext(WithLogger(c.UserContext(), reqLogger))
+
+		err := c.Next()
+
 		status := c.Response().StatusCode()
+
 		if err != nil {
 			var appErr *model.AppError
+
 			if errors.As(err, &appErr) {
 				status = appErr.StatusCode
 			} else {
@@ -32,23 +43,20 @@ func RequestLogger(logger *slog.Logger) fiber.Handler {
 			}
 		}
 
-		attr := []any{
-			slog.String("request_id", requestID),
-			slog.String("method", c.Method()),
-			slog.String("path", c.Path()),
+		attrs := []any{
 			slog.Int("status", status),
 			slog.Duration("duration", time.Since(start)),
-			slog.String("ip", c.IP()),
 		}
 
-		// if user, ok := helper.CurentUser(c); ok {
-		// 	attr = append(attr,
-		// 		slog.Int("user_id", user.UserID),
-		// 		slog.String("role", user.Role),
-		// 	)
-		// }
+		if userID, ok := c.Locals("user_id").(string); ok {
+			attrs = append(attrs, slog.String("user_id", userID))
+		}
 
-		logger.Info("http_request", attr...)
+		if role, ok := c.Locals("role").(string); ok {
+			attrs = append(attrs, slog.String("role", role))
+		}
+
+		reqLogger.Info("http_request", attrs...)
 
 		return err
 	}
@@ -72,7 +80,6 @@ func RequireJSON(c *fiber.Ctx) error {
 
 func Register(app *fiber.App, logger *slog.Logger, allowedOrigin []string) {
 	app.Use(requestid.New())
-	app.Use(recover.New())
 	app.Use(helmet.New())
 	app.Use(corsPolicy(allowedOrigin))
 	app.Use(RequestLogger(logger))
@@ -92,16 +99,16 @@ func corsPolicy(allowedOrigin []string) fiber.Handler {
 }
 
 // Middleware untuk melindungi endpoint yang rentan
-// digunakan: Login
-func GeneralRateLimiter() fiber.Handler {
-	return limiter.New(limiter.Config{
-		Max:        3,
-		Expiration: 30 * time.Second,
-		KeyGenerator: func(c *fiber.Ctx) string {
-			return c.IP()
-		},
-		LimitReached: func(c *fiber.Ctx) error {
-			return helper.ErrTooManyRequest("terlalu banyak percobaan")
-		},
-	})
-}
+// digunakan: (belum terpakai)
+// func GeneralRateLimiter() fiber.Handler {
+// 	return limiter.New(limiter.Config{
+// 		Max:        3,
+// 		Expiration: 30 * time.Second,
+// 		KeyGenerator: func(c *fiber.Ctx) string {
+// 			return c.IP()
+// 		},
+// 		LimitReached: func(c *fiber.Ctx) error {
+// 			return helper.ErrTooManyRequest("terlalu banyak percobaan")
+// 		},
+// 	})
+// }

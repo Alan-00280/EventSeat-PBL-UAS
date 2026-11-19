@@ -52,13 +52,13 @@ func NewFiberApp(env *Env, logger *slog.Logger, deps routes.Dependencies) *fiber
 		EnableStackTrace: env.AppEnv != "production",
 	}))
 
+	// Middleware
+	middleware.Register(app, logger, env.AllowedOrigins)
+
 	// HELLO WORLD!
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World!")
 	})
-
-	// Middleware
-	middleware.Register(app, logger, env.AllowedOrigins)
 
 	// App Routes
 	routes.Register(app, deps)
