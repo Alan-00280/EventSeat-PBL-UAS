@@ -244,6 +244,6 @@ func (s *AuthService) issueTokenPair(ctx context.Context, user model.User) (mode
 		AccessToken:  acces_token,
 		RefreshToken: refresh_token,
 		TokenType:    "Bearer",
-		ExpiredIn:    int(s.refreshTTL.Seconds()),
+		ExpiredIn:    int(s.jwt.GetTTL().Seconds()),
 	}, nil
 }
