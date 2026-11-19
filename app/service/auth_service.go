@@ -108,7 +108,7 @@ func (s *AuthService) Login(c *fiber.Ctx) error {
 
 	if errs := helper.ValidateStruct(req, *s.appValidator); len(errs) > 0 {
 		vals := helper.ToValidationFields(errs)
-		return helper.ErrValidation("Validasi Register", vals)
+		return helper.ErrValidation("Validasi Login", vals)
 	}
 
 	user, err := s.users.FindByUsername(ctx, req.Username)
