@@ -38,6 +38,15 @@ func main() {
 	}
 	defer pool.Close()
 
+	mongoConn, err := database.NewMongoDatabase(env)
+	if err != nil {
+		logger.Error("gagal terhubung ke MongoDB", slog.String("[ERROR]", err.Error()))
+		return
+	}
+	mongoDB := mongoConn.Database
+	mongoClient := mongoConn.Client
+	logger.Info("berhasil koneksi ke database MongoDB", slog.Any("MONGO_DB", mongoDB), slog.Any("MONGO_CLIENT", mongoClient))
+
 	// JWT MANAGER
 	jwtManager := helper.NewJWTManager(
 		env.JWTSecret,
@@ -100,6 +109,7 @@ func main() {
 
 	logger.Info("SHUTTING DOWN SERVER...")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	mongoConn.Client.Disconnect(ctx)
 	defer cancel()
 
 	if err := app.ShutdownWithContext(ctx); err != nil {
