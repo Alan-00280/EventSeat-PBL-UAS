@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/Alan-00280/EventSeat-PBL-UAS.git/app/model"
+"github.com/Alan-00280/EventSeat-PBL-UAS.git/app/model"
 )
 
 const (
