@@ -86,6 +86,7 @@ func main() {
 	// APP
 	deps := routes.Dependencies{
 		Pool:        pool,
+		Mongo:       mongoConn,
 		JWT:         jwtManager,
 		AuthService: authService,
 	}
