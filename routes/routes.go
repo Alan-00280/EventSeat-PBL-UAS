@@ -11,8 +11,13 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+type MongoPinger interface {
+	Ping(context.Context) error
+}
+
 type Dependencies struct {
 	Pool        *pgxpool.Pool
+	Mongo       MongoPinger
 	JWT         *helper.JWTManager
 	AuthService *service.AuthService
 }
@@ -20,8 +25,8 @@ type Dependencies struct {
 func Register(app *fiber.App, deps Dependencies) {
 	api := app.Group("/api/v1")
 
-	// HEALTH CHECK (WITH DB POOL CONNECTION)
-	api.Get("/health", healthCheck(deps.Pool))
+	// HEALTH CHECK
+	api.Get("/health", healthCheck(deps.Pool, deps.Mongo))
 
 	// AUTHENTICATION
 	auth := api.Group("/auth", middleware.RequireJSON)
@@ -32,13 +37,20 @@ func Register(app *fiber.App, deps Dependencies) {
 	auth.Get("/me", middleware.RequireAuth(deps.JWT), deps.AuthService.Me)
 }
 
-func healthCheck(pool *pgxpool.Pool) fiber.Handler {
+func healthCheck(pool *pgxpool.Pool, mongo MongoPinger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, cancel := context.WithTimeout(c.UserContext(), 2*time.Second)
 		defer cancel()
 
 		if err := pool.Ping(ctx); err != nil {
 			// ERR 503 - Service Unavailable
+			return helper.ErrServiceUnavailable("database can't be reached")
+		}
+
+		if mongo == nil {
+			return helper.ErrServiceUnavailable("database can't be reached")
+		}
+		if err := mongo.Ping(ctx); err != nil {
 			return helper.ErrServiceUnavailable("database can't be reached")
 		}
 

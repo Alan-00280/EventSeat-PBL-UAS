@@ -17,6 +17,10 @@ type MongoConn struct {
 	Database *mongo.Database
 }
 
+func (conn *MongoConn) Ping(ctx context.Context) error {
+	return conn.Client.Ping(ctx, nil)
+}
+
 // NewMongoDatabase menginisialisasi koneksi MongoDB menggunakan URI dari config.Env.
 func NewMongoDatabase(env *config.Env) (*MongoConn, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
